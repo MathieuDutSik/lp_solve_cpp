@@ -306,7 +306,7 @@ void write_model(lprec *lp, char plp, char *wlp, char *wmps, char *wfmps, char *
       fprintf(stderr, "Unable to set XLI library (%s).\n", wxliname);
       EndOfPgr(FORCED_EXIT);
     }
-    write_XLI(lp, wxli, wxlioptions, FALSE);
+    write_XLI(lp, wxli, wxlioptions, false);
     set_XLI(lp, NULL);
   }
 
@@ -369,32 +369,6 @@ static void minmax(REAL value, REAL *minima, REAL *maxima, int *nminima, int *nm
   minmax1(value, -1.0, minima, nminima, row, rowmin, col, colmin);
   minmax1(value, +1.0, maxima, nmaxima, row, rowmax, col, colmax);
 }
-
-/*
-static void printminmax1(lprec *lp, char *s, REAL *minmax, int nminmax, int *rowminmax, int *colminmax)
-{
-  int i;
-
-  for (i = 0; i < nminmax; i++) {
-    printf(" %s(", s);
-    if (rowminmax != NULL)
-      printf("%s", get_row_name(lp, rowminmax[i]));
-    if ((rowminmax != NULL) && (colminmax != NULL))
-      printf(", ");
-    if (colminmax != NULL)
-      printf("%s", get_col_name(lp, colminmax[i]));
-    printf(") = %.8f\n", minmax[i]);
-  }
-}
-
-static void printminmax(lprec *lp, char *s, REAL *minima, REAL *maxima, int nminima, int nmaxima, int *rowmin, int *rowmax, int *colmin, int *colmax)
-{
-  printf("Minima:\n");
-  printminmax1(lp, s, minima, nminima, rowmin, colmin);
-  printf("Maxima:\n");
-  printminmax1(lp, s, maxima, nmaxima, rowmax, colmax);
-}
-*/
 
 static void printminmax(lprec *lp, char *s, REAL *minima, REAL *maxima, int nminima, int nmaxima, int *rowmin, int *rowmax, int *colmin, int *colmax)
 {
@@ -461,19 +435,6 @@ static void print_statistics(lprec *lp)
   colMATmin = (int *) malloc(nstats * sizeof(*colMATmin));
   colMATmax = (int *) malloc(nstats * sizeof(*colMATmax));
 
-/*
-  minmax(2.0, MATmin, MATmax, &nMATmin, &nMATmax, 1, rowMATmin, rowMATmax, 8, colMATmin, colMATmax);
-  minmax(1.0, MATmin, MATmax, &nMATmin, &nMATmax, 2, rowMATmin, rowMATmax, 7, colMATmin, colMATmax);
-  minmax(1.5, MATmin, MATmax, &nMATmin, &nMATmax, 3, rowMATmin, rowMATmax, 6, colMATmin, colMATmax);
-  minmax(3.0, MATmin, MATmax, &nMATmin, &nMATmax, 4, rowMATmin, rowMATmax, 5, colMATmin, colMATmax);
-  minmax(4.0, MATmin, MATmax, &nMATmin, &nMATmax, 5, rowMATmin, rowMATmax, 4, colMATmin, colMATmax);
-  minmax(0.1, MATmin, MATmax, &nMATmin, &nMATmax, 6, rowMATmin, rowMATmax, 3, colMATmin, colMATmax);
-  minmax(5.0, MATmin, MATmax, &nMATmin, &nMATmax, 7, rowMATmin, rowMATmax, 2, colMATmin, colMATmax);
-  minmax(1.4, MATmin, MATmax, &nMATmin, &nMATmax, 8, rowMATmin, rowMATmax, 1, colMATmin, colMATmax);
-
-  printminmax(MATmin, MATmax, nMATmin, nMATmax, rowMATmin, rowMATmax, colMATmin, colMATmax);
-*/
-
   for (i = 1; i <= m; i++)
     minmax(get_rh(lp, i), RHSmin, RHSmax, &nRHSmin, &nRHSmax, i, rowRHSmin, rowRHSmax, 0, NULL, NULL);
 
@@ -533,30 +494,31 @@ static void print_statistics(lprec *lp)
 int main(int argc, char *argv[])
 {
   lprec *lp = NULL;
-  char *filen, *wlp = NULL, *wmps = NULL, *wfmps = NULL, plp = FALSE;
+  char *filen, *wlp = NULL, *wmps = NULL, *wfmps = NULL;
+  bool plp = false;
   int i;
   int verbose = IMPORTANT /* CRITICAL */;
   int debug = -1;
-  MYBOOL report = FALSE;
-  MYBOOL nonames = FALSE, norownames = FALSE, nocolnames = FALSE;
-  MYBOOL write_model_after = FALSE;
-  MYBOOL noint = FALSE;
+  MYBOOL report = false;
+  MYBOOL nonames = false, norownames = false, nocolnames = false;
+  MYBOOL write_model_after = false;
+  MYBOOL noint = false;
   int print_sol = -1;
-  MYBOOL print_stats = FALSE;
+  MYBOOL print_stats = false;
   int floor_first = -1;
-  MYBOOL do_set_bb_depthlimit = FALSE;
+  MYBOOL do_set_bb_depthlimit = false;
   int bb_depthlimit = 0;
-  MYBOOL do_set_solutionlimit = FALSE;
+  MYBOOL do_set_solutionlimit = false;
   int solutionlimit = 0;
-  MYBOOL break_at_first = FALSE;
+  MYBOOL break_at_first = false;
   int scaling = 0;
   double scaleloop = 0;
-  MYBOOL tracing = FALSE;
+  MYBOOL tracing = false;
   short filetype = filetypeLP;
   int anti_degen1 = -1;
   int anti_degen2 = -1;
-  short print_timing = FALSE;
-  short parse_only = FALSE;
+  short print_timing = false;
+  short parse_only = false;
   int do_presolve = -1;
   short objective = 0;
   short PRINT_SOLUTION = 2;
@@ -570,12 +532,12 @@ int main(int argc, char *argv[])
   int scalemode2 = -1;
   int crashmode = -1;
   char *guessbasis = NULL;
-  /* short timeoutok = FALSE; */
+  /* short timeoutok = false; */
   long sectimeout = -1;
   int result;
   MYBOOL preferdual = AUTOMATIC;
   int simplextype = -1;
-  MYBOOL do_set_obj_bound = FALSE;
+  MYBOOL do_set_obj_bound = false;
   REAL obj_bound = 0;
   REAL mip_absgap = -1;
   REAL mip_relgap = -1;
@@ -585,7 +547,7 @@ int main(int argc, char *argv[])
   REAL epsd = -1;
   REAL epsb = -1;
   REAL epsel = -1;
-  MYBOOL do_set_break_at_value = FALSE;
+  MYBOOL do_set_break_at_value = false;
   REAL break_at_value = 0;
   REAL accuracy_error0, accuracy_error = -1;
   FILE *fpin = stdin;
@@ -599,9 +561,9 @@ int main(int argc, char *argv[])
   char *wparname = NULL;
   char *wparoptions = NULL;
   char obj_in_basis = -1;
-  char mps_ibm = FALSE;
-  char mps_negobjconst = FALSE;
-  char mps_free = FALSE;
+  bool mps_ibm = false;
+  bool mps_negobjconst = false;
+  bool mps_free = false;
   MYBOOL ok;
 # define SCALINGTHRESHOLD 0.03
 
@@ -612,7 +574,7 @@ int main(int argc, char *argv[])
 # endif
 
   for(i = 1; i < argc; i++) {
-    ok = FALSE;
+    ok = false;
     if(strncmp(argv[i], "-v", 2) == 0) {
       if (argv[i][2])
         verbose = atoi(argv[i] + 2);
@@ -714,7 +676,7 @@ int main(int argc, char *argv[])
       EndOfPgr(EXIT_SUCCESS);
     }
     else if(strcmp(argv[i], "-prim") == 0)
-      preferdual = FALSE;
+      preferdual = false;
     else if(strcmp(argv[i], "-dual") == 0)
       preferdual = TRUE;
     else if(strcmp(argv[i], "-simplexpp") == 0)
@@ -979,7 +941,7 @@ int main(int argc, char *argv[])
     else if((strcmp(argv[i],"-wparopt") == 0) && (i + 1 < argc))
       i++;
     else if(strcmp(argv[i],"-o0") == 0)
-      obj_in_basis = FALSE;
+      obj_in_basis = false;
     else if(strcmp(argv[i],"-o1") == 0)
       obj_in_basis = TRUE;
     else if((strcmp(argv[i], "-ac") == 0) && (i + 1 < argc))
@@ -1069,9 +1031,9 @@ int main(int argc, char *argv[])
     }
 
   if((nonames) || (nocolnames))
-    set_use_names(lp, FALSE, FALSE);
+    set_use_names(lp, false, false);
   if((nonames) || (norownames))
-    set_use_names(lp, TRUE, FALSE);
+    set_use_names(lp, TRUE, false);
 
   if(objective != 0) {
     if(objective == 1)
@@ -1090,8 +1052,8 @@ int main(int argc, char *argv[])
         delete_lp(lp);
         EndOfPgr(FORCED_EXIT);
       }
-      set_semicont(lp, i, FALSE);
-      set_int(lp, i, FALSE);
+      set_semicont(lp, i, false);
+      set_int(lp, i, false);
     }
   }
 
@@ -1152,7 +1114,7 @@ int main(int argc, char *argv[])
   if(mip_absgap >= 0)
     set_mip_gap(lp, TRUE, mip_absgap);
   if(mip_relgap >= 0)
-    set_mip_gap(lp, FALSE, mip_relgap);
+    set_mip_gap(lp, false, mip_relgap);
   if((anti_degen1 != -1) || (anti_degen2 != -1)) {
     if((anti_degen1 == -1) || (anti_degen2 != -1))
       anti_degen1 = 0;
@@ -1237,7 +1199,7 @@ int main(int argc, char *argv[])
             while ((ptr > buf) && (isspace(ptr[-1])))
               ptr--;
             *ptr = 0;
-            col = get_nameindex(lp, buf, FALSE);
+            col = get_nameindex(lp, buf, false);
             if (col < 1)
               printf("guess_basis: Unknown variable name %s\n", buf);
             else
@@ -1279,7 +1241,7 @@ int main(int argc, char *argv[])
   if(write_model_after)
     write_model(lp, plp, wlp, wmps, wfmps, wxli, NULL, wxliname, wxlioptions);
 
-  write_model(lp, FALSE, NULL, NULL, NULL, NULL, wxlisol, wxliname, wxlisoloptions);
+  write_model(lp, false, NULL, NULL, NULL, NULL, wxlisol, wxliname, wxlisoloptions);
 
   if(PRINT_SOLUTION >= 6)
     print_scales(lp);

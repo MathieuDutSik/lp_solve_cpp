@@ -84,10 +84,6 @@
   #define NULL 	       0
 #endif
 
-#ifndef FALSE
-  #define FALSE        0
-  #define TRUE         1
-#endif
 
 #ifndef DEF_STRBUFSIZE
   #define DEF_STRBUFSIZE   512

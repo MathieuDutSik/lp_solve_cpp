@@ -702,17 +702,6 @@
 
 #define ONES_COMPLEMENT(r) (-(r)-1)
 
-/* -------------------------------------------------------------------------- */
-/* Change for version 2.1:  define TRUE and FALSE only if not yet defined */  
-/* -------------------------------------------------------------------------- */
-
-#ifndef TRUE
-#define TRUE (1)
-#endif
-
-#ifndef FALSE
-#define FALSE (0)
-#endif
 
 /* -------------------------------------------------------------------------- */
 
@@ -1060,7 +1049,7 @@ PUBLIC int symamd			/* return TRUE if OK, FALSE otherwise */
     if (!stats)
     {
 	DEBUG0 (("symamd: stats not present\n")) ;
-	return (FALSE) ;
+	return false ;
     }
     for (i = 0 ; i < COLAMD_STATS ; i++)
     {
@@ -1074,14 +1063,14 @@ PUBLIC int symamd			/* return TRUE if OK, FALSE otherwise */
     {
     	stats [COLAMD_STATUS] = COLAMD_ERROR_A_not_present ;
 	DEBUG0 (("symamd: A not present\n")) ;
-	return (FALSE) ;
+	return false ;
     }
 
     if (!p)		/* p is not present */
     {
 	stats [COLAMD_STATUS] = COLAMD_ERROR_p_not_present ;
 	DEBUG0 (("symamd: p not present\n")) ;
-    	return (FALSE) ;
+    	return false ;
     }
 
     if (n < 0)		/* n must be >= 0 */
@@ -1089,7 +1078,7 @@ PUBLIC int symamd			/* return TRUE if OK, FALSE otherwise */
 	stats [COLAMD_STATUS] = COLAMD_ERROR_ncol_negative ;
 	stats [COLAMD_INFO1] = n ;
 	DEBUG0 (("symamd: n negative %d\n", n)) ;
-    	return (FALSE) ;
+    	return false ;
     }
 
     nnz = p [n] ;
@@ -1098,7 +1087,7 @@ PUBLIC int symamd			/* return TRUE if OK, FALSE otherwise */
 	stats [COLAMD_STATUS] = COLAMD_ERROR_nnz_negative ;
 	stats [COLAMD_INFO1] = nnz ;
 	DEBUG0 (("symamd: number of entries negative %d\n", nnz)) ;
-	return (FALSE) ;
+	return false ;
     }
 
     if (p [0] != 0)
@@ -1106,7 +1095,7 @@ PUBLIC int symamd			/* return TRUE if OK, FALSE otherwise */
 	stats [COLAMD_STATUS] = COLAMD_ERROR_p0_nonzero ;
 	stats [COLAMD_INFO1] = p [0] ;
 	DEBUG0 (("symamd: p[0] not zero %d\n", p [0])) ;
-	return (FALSE) ;
+	return false ;
     }
 
     /* === If no knobs, set default knobs =================================== */
@@ -1124,7 +1113,7 @@ PUBLIC int symamd			/* return TRUE if OK, FALSE otherwise */
     {
 	stats [COLAMD_STATUS] = COLAMD_ERROR_out_of_memory ;
 	DEBUG0 (("symamd: allocate count (size %d) failed\n", n+1)) ;
-	return (FALSE) ;
+	return false ;
     }
 
     mark = (int *) ((*allocate) (n+1, sizeof (int))) ;
@@ -1133,7 +1122,7 @@ PUBLIC int symamd			/* return TRUE if OK, FALSE otherwise */
 	stats [COLAMD_STATUS] = COLAMD_ERROR_out_of_memory ;
 	(*release) ((void *) count) ;
 	DEBUG0 (("symamd: allocate mark (size %d) failed\n", n+1)) ;
-	return (FALSE) ;
+	return false ;
     }
 
     /* === Compute column counts of M, check if A is valid ================== */
@@ -1159,7 +1148,7 @@ PUBLIC int symamd			/* return TRUE if OK, FALSE otherwise */
 	    (*release) ((void *) count) ;
 	    (*release) ((void *) mark) ;
 	    DEBUG0 (("symamd: col %d negative length %d\n", j, length)) ;
-	    return (FALSE) ;
+	    return false ;
 	}
 
 	for (pp = p [j] ; pp < p [j+1] ; pp++)
@@ -1175,7 +1164,7 @@ PUBLIC int symamd			/* return TRUE if OK, FALSE otherwise */
 		(*release) ((void *) count) ;
 		(*release) ((void *) mark) ;
 		DEBUG0 (("symamd: row %d col %d out of bounds\n", i, j)) ;
-		return (FALSE) ;
+		return false ;
 	    }
 
 	    if (i <= last_row || mark [i] == j)
@@ -1237,7 +1226,7 @@ PUBLIC int symamd			/* return TRUE if OK, FALSE otherwise */
 	(*release) ((void *) count) ;
 	(*release) ((void *) mark) ;
 	DEBUG0 (("symamd: allocate M (size %d) failed\n", Mlen)) ;
-	return (FALSE) ;
+	return false ;
     }
 
     k = 0 ;
@@ -1326,7 +1315,7 @@ PUBLIC int symamd			/* return TRUE if OK, FALSE otherwise */
 	stats [COLAMD_STATUS] = COLAMD_ERROR_internal_error ;
 	(*release) ((void *) M) ;
 	DEBUG0 (("symamd: internal error!\n")) ;
-	return (FALSE) ;
+	return false ;
     }
 
     /* Note that the output permutation is now in perm */
@@ -1395,7 +1384,7 @@ PUBLIC int colamd		/* returns TRUE if successful, FALSE otherwise*/
     if (!stats)
     {
 	DEBUG0 (("colamd: stats not present\n")) ;
-	return (FALSE) ;
+	return false ;
     }
     for (i = 0 ; i < COLAMD_STATS ; i++)
     {
@@ -1409,14 +1398,14 @@ PUBLIC int colamd		/* returns TRUE if successful, FALSE otherwise*/
     {
 	stats [COLAMD_STATUS] = COLAMD_ERROR_A_not_present ;
 	DEBUG0 (("colamd: A not present\n")) ;
-	return (FALSE) ;
+	return false ;
     }
 
     if (!p)		/* p is not present */
     {
 	stats [COLAMD_STATUS] = COLAMD_ERROR_p_not_present ;
 	DEBUG0 (("colamd: p not present\n")) ;
-    	return (FALSE) ;
+    	return false ;
     }
 
     if (n_row < 0)	/* n_row must be >= 0 */
@@ -1424,7 +1413,7 @@ PUBLIC int colamd		/* returns TRUE if successful, FALSE otherwise*/
 	stats [COLAMD_STATUS] = COLAMD_ERROR_nrow_negative ;
 	stats [COLAMD_INFO1] = n_row ;
 	DEBUG0 (("colamd: nrow negative %d\n", n_row)) ;
-    	return (FALSE) ;
+    	return false ;
     }
 
     if (n_col < 0)	/* n_col must be >= 0 */
@@ -1432,7 +1421,7 @@ PUBLIC int colamd		/* returns TRUE if successful, FALSE otherwise*/
 	stats [COLAMD_STATUS] = COLAMD_ERROR_ncol_negative ;
 	stats [COLAMD_INFO1] = n_col ;
 	DEBUG0 (("colamd: ncol negative %d\n", n_col)) ;
-    	return (FALSE) ;
+    	return false ;
     }
 
     nnz = p [n_col] ;
@@ -1441,7 +1430,7 @@ PUBLIC int colamd		/* returns TRUE if successful, FALSE otherwise*/
 	stats [COLAMD_STATUS] = COLAMD_ERROR_nnz_negative ;
 	stats [COLAMD_INFO1] = nnz ;
 	DEBUG0 (("colamd: number of entries negative %d\n", nnz)) ;
-	return (FALSE) ;
+	return false ;
     }
 
     if (p [0] != 0)
@@ -1449,7 +1438,7 @@ PUBLIC int colamd		/* returns TRUE if successful, FALSE otherwise*/
 	stats [COLAMD_STATUS] = COLAMD_ERROR_p0_nonzero	;
 	stats [COLAMD_INFO1] = p [0] ;
 	DEBUG0 (("colamd: p[0] not zero %d\n", p [0])) ;
-	return (FALSE) ;
+	return false ;
     }
 
     /* === If no knobs, set default knobs =================================== */
@@ -1473,7 +1462,7 @@ PUBLIC int colamd		/* returns TRUE if successful, FALSE otherwise*/
 	stats [COLAMD_INFO1] = need ;
 	stats [COLAMD_INFO2] = Alen ;
 	DEBUG0 (("colamd: Need Alen >= %d, given only Alen = %d\n", need,Alen));
-	return (FALSE) ;
+	return false ;
     }
 
     Alen -= Col_size + Row_size ;
@@ -1486,7 +1475,7 @@ PUBLIC int colamd		/* returns TRUE if successful, FALSE otherwise*/
     {
 	/* input matrix is invalid */
 	DEBUG0 (("colamd: Matrix invalid\n")) ;
-	return (FALSE) ;
+	return false ;
     }
 
     /* === Initialize scores, kill dense rows/columns ======================= */
@@ -1597,7 +1586,7 @@ PRIVATE int init_rows_cols	/* returns TRUE if OK, or FALSE otherwise */
 	    stats [COLAMD_INFO1] = col ;
 	    stats [COLAMD_INFO2] = Col [col].length ;
 	    DEBUG0 (("colamd: col %d length %d < 0\n", col, Col [col].length)) ;
-	    return (FALSE) ;
+	    return false ;
 	}
 
 	Col [col].shared1.thickness = 1 ;
@@ -1637,7 +1626,7 @@ PRIVATE int init_rows_cols	/* returns TRUE if OK, or FALSE otherwise */
 		stats [COLAMD_INFO2] = row ;
 		stats [COLAMD_INFO3] = n_row ;
 		DEBUG0 (("colamd: row %d col %d out of bounds\n", row, col)) ;
-		return (FALSE) ;
+		return false ;
 	    }
 
 	    if (row <= last_row || Row [row].shared2.mark == col)

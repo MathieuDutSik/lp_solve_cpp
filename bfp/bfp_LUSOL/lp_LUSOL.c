@@ -58,7 +58,7 @@ MYBOOL BFP_CALLMODEL bfp_resize(lprec *lp, int newsize)
 
   /* Allocate index tracker arrays, LU matrices and various work vectors */
   if(!allocREAL(lp, &(lu->value), newsize+MATINDEXBASE, AUTOMATIC))
-    return( FALSE );
+    return( false );
 
   /* Data specific to the factorization engine */
   if(lu->LUSOL != NULL) {
@@ -82,7 +82,7 @@ MYBOOL BFP_CALLMODEL bfp_resize(lprec *lp, int newsize)
 #if 0
     lu->timed_refact = DEF_TIMEDREFACT;
 #else
-    lu->timed_refact = FALSE;
+    lu->timed_refact = false;
 #endif
 
     /* The following adjustments seem necessary to make the really tough NETLIB
@@ -118,7 +118,7 @@ MYBOOL BFP_CALLMODEL bfp_resize(lprec *lp, int newsize)
        Values between 1.2 and 1.5 appear to be reasonable. */
     asize = (int) (bsize*MAX_DELTAFILLIN*1.3333);
     if(!LUSOL_sizeto(lu->LUSOL, newsize, newsize, asize))
-      return( FALSE );
+      return( false );
   }
   lu->dimcount = newsize;
   return( TRUE );
@@ -229,7 +229,7 @@ int bfp_LUSOLidentity(lprec *lp, int *rownum)
     nz = lp->get_basiscolumn(lp, i, rownum, invB->value);
     LUSOL_loadColumn(invB->LUSOL, rownum, i, invB->value, nz, 0);
   }
-  lp->invB->set_Bidentity = FALSE;
+  lp->invB->set_Bidentity = false;
 
   /* Factorize */
   i = LUSOL_factorize(invB->LUSOL);
@@ -318,7 +318,7 @@ void bfp_LUSOLtighten(lprec *lp)
   int infolevel = DETAILED;
 
   switch(LUSOL_tightenpivot(lp->invB->LUSOL)) {
-    case FALSE: lp->report(lp, infolevel, "bfp_factorize: Very hard numerics, but cannot tighten LUSOL thresholds further.\n");
+    case false: lp->report(lp, infolevel, "bfp_factorize: Very hard numerics, but cannot tighten LUSOL thresholds further.\n");
                  break;
     case TRUE:  lp->report(lp, infolevel, "bfp_factorize: Frequent refact pivot count %d at iter %.0f; tightened thresholds.\n",
                                            lp->invB->num_pivots, (REAL) lp->get_total_iter(lp));
@@ -352,7 +352,7 @@ int BFP_CALLMODEL bfp_factorize(lprec *lp, int uservars, int Bsize, MYBOOL *used
   kcol = lp->invB->dimcount;
   LUSOL->m = kcol;
   LUSOL->n = kcol;
-  allocINT(lp, &rownum, kcol+1, FALSE);
+  allocINT(lp, &rownum, kcol+1, false);
 
  /* Check if the refactorization frequency is low;
     tighten pivot thresholds if appropriate */
@@ -480,9 +480,9 @@ MYBOOL BFP_CALLMODEL bfp_finishupdate(lprec *lp, MYBOOL changesign)
   LUSOLrec *LUSOL = lu->LUSOL;
 
   if(!lu->is_dirty)
-    return( FALSE );
+    return( false );
   if(lu->is_dirty != AUTOMATIC)
-    lu->is_dirty = FALSE;
+    lu->is_dirty = false;
 
   /* Perform the update */
   k = lu->col_pos+deltarows;
@@ -549,7 +549,7 @@ MYBOOL BFP_CALLMODEL bfp_finishupdate(lprec *lp, MYBOOL changesign)
     lp->report(lp, infolevel, "bfp_finishupdate: Failed at iter %.0f, pivot %d;\n%s\n",
                    (REAL) (lp->total_iter+lp->current_iter), lu->num_pivots, LUSOL_informstr(LUSOL, i));
     if(i == LUSOL_INFORM_ANEEDMEM) {       /* To compress used memory and realloc, if necessary */
-      lp->invert(lp, INITSOL_USEZERO, FALSE);
+      lp->invert(lp, INITSOL_USEZERO, false);
       if(i != LUSOL_INFORM_LUSUCCESS)
         lp->report(lp, NORMAL, "bfp_finishupdate: Insufficient memory at iter %.0f;\n%s\n",
                        (REAL) (lp->total_iter+lp->current_iter), LUSOL_informstr(LUSOL, i));
@@ -564,7 +564,7 @@ MYBOOL BFP_CALLMODEL bfp_finishupdate(lprec *lp, MYBOOL changesign)
 #endif
       lp->set_basisvar(lp, kcol-deltarows, kcol-deltarows);
 #endif
-      lp->invert(lp, INITSOL_USEZERO, FALSE);
+      lp->invert(lp, INITSOL_USEZERO, false);
       i = LUSOL->luparm[LUSOL_IP_INFORM];
       if(i != LUSOL_INFORM_LUSUCCESS)
         lp->report(lp, NORMAL, "bfp_finishupdate: Recovery attempt unsuccessful at iter %.0f;\n%s\n",
@@ -587,7 +587,7 @@ void BFP_CALLMODEL bfp_ftran_normal(lprec *lp, REAL *pcol, int *nzidx)
   lu = lp->invB;
 
   /* Do the LUSOL ftran */
-  i = LUSOL_ftran(lu->LUSOL, pcol-bfp_rowoffset(lp), nzidx, FALSE);
+  i = LUSOL_ftran(lu->LUSOL, pcol-bfp_rowoffset(lp), nzidx, false);
   if(i != LUSOL_INFORM_LUSUCCESS) {
     lu->status = BFP_STATUS_ERROR;
     lp->report(lp, NORMAL, "bfp_ftran_normal: Failed at iter %.0f, pivot %d;\n%s\n",
@@ -659,8 +659,8 @@ int BFP_CALLMODEL bfp_findredundant(lprec *lp, int items, getcolumnex_func cb, i
     return( n );
 
   /* If so, initialize memory structures */
-  if(!allocINT(lp, &nzrows, items, FALSE) ||
-     !allocREAL(lp, &nzvalues, items, FALSE))
+  if(!allocINT(lp, &nzrows, items, false) ||
+     !allocREAL(lp, &nzvalues, items, false))
     return( n );
 
   /* Compute the number of non-empty columns */
@@ -684,7 +684,7 @@ int BFP_CALLMODEL bfp_findredundant(lprec *lp, int items, getcolumnex_func cb, i
   LUSOL->m = items;
   LUSOL->n = m;
 #if 0
-  LUSOL->luparm[LUSOL_IP_KEEPLU]        = FALSE;
+  LUSOL->luparm[LUSOL_IP_KEEPLU]        = false;
   LUSOL->luparm[LUSOL_IP_PIVOTTYPE]     = LUSOL_PIVMOD_TRP;
   LUSOL->parmlu[LUSOL_RP_FACTORMAX_Lij] = 2.0;
 #endif

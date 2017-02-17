@@ -14,7 +14,7 @@
 /* MUST MODIFY */
 MYBOOL BFP_CALLMODEL bfp_compatible(lprec *lp, int bfpversion, int lpversion, int sizeofvar)
 {
-  MYBOOL status = FALSE;
+  MYBOOL status = false;
 
   if((lp != NULL) && (bfpversion == BFPVERSION) && (sizeof(REAL) == sizeofvar)) {
 #if 0
@@ -151,7 +151,7 @@ int *bfp_createMDO(lprec *lp, MYBOOL *usedpos, int count, MYBOOL doMDO)
   int *mdo, i, j, kk;
 
   mdo = (int *) malloc((count + 1)*sizeof(*mdo));
-/*  allocINT(lp, &mdo, count + 1, FALSE); */
+/*  allocINT(lp, &mdo, count + 1, false); */
 
  /* Fill the mdo[] array with remaining full-pivot basic user variables */
   kk = 0;
@@ -168,7 +168,7 @@ int *bfp_createMDO(lprec *lp, MYBOOL *usedpos, int count, MYBOOL doMDO)
 
  /* Calculate the approximate minimum degree column ordering */
   if(doMDO) {
-    i = lp->getMDO(lp, usedpos, mdo, NULL, FALSE);
+    i = lp->getMDO(lp, usedpos, mdo, NULL, false);
     if(i != 0) {
       lp->report(lp, CRITICAL, "bfp_createMDO: Internal error %d in minimum degree ordering routine", i);
       FREE(mdo);

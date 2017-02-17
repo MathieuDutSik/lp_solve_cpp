@@ -33,7 +33,7 @@
    ----------------------------------------------------------------------------------
 */
 
-STATIC MYBOOL allocCHAR(lprec *lp, char **ptr, int size, MYBOOL clear)
+STATIC bool allocCHAR(lprec *lp, char **ptr, int size, bool clear)
 {
   if(clear == TRUE)
     *ptr = (char *) calloc(size, sizeof(**ptr));
@@ -52,26 +52,26 @@ STATIC MYBOOL allocCHAR(lprec *lp, char **ptr, int size, MYBOOL clear)
   else
     return( TRUE );
 }
-STATIC MYBOOL allocMYBOOL(lprec *lp, MYBOOL **ptr, int size, MYBOOL clear)
+STATIC bool allocbool(lprec *lp, bool **ptr, int size, bool clear)
 {
   if(clear == TRUE)
-    *ptr = (MYBOOL *) calloc(size, sizeof(**ptr));
+    *ptr = (bool *) calloc(size, sizeof(**ptr));
   else if(clear & AUTOMATIC) {
-    *ptr = (MYBOOL *) realloc(*ptr, size * sizeof(**ptr));
+    *ptr = (bool *) realloc(*ptr, size * sizeof(**ptr));
     if(clear & TRUE)
       MEMCLEAR(*ptr, size);
   }
   else
-    *ptr = (MYBOOL *) malloc(size * sizeof(**ptr));
+    *ptr = (bool *) malloc(size * sizeof(**ptr));
   if(((*ptr) == NULL) && (size > 0)) {
-    lp->report(lp, CRITICAL, "alloc of %d 'MYBOOL' failed\n", size);
+    lp->report(lp, CRITICAL, "alloc of %d 'bool' failed\n", size);
     lp->spx_status = NOMEMORY;
     return( FALSE );
   }
   else
     return( TRUE );
 }
-STATIC MYBOOL allocINT(lprec *lp, int **ptr, int size, MYBOOL clear)
+STATIC bool allocINT(lprec *lp, int **ptr, int size, bool clear)
 {
   if(clear == TRUE)
     *ptr = (int *) calloc(size, sizeof(**ptr));
@@ -90,7 +90,7 @@ STATIC MYBOOL allocINT(lprec *lp, int **ptr, int size, MYBOOL clear)
   else
     return( TRUE );
 }
-STATIC MYBOOL allocREAL(lprec *lp, REAL **ptr, int size, MYBOOL clear)
+STATIC bool allocREAL(lprec *lp, REAL **ptr, int size, bool clear)
 {
   if(clear == TRUE)
     *ptr = (REAL *) calloc(size, sizeof(**ptr));
@@ -109,7 +109,7 @@ STATIC MYBOOL allocREAL(lprec *lp, REAL **ptr, int size, MYBOOL clear)
   else
     return( TRUE );
 }
-STATIC MYBOOL allocLREAL(lprec *lp, LREAL **ptr, int size, MYBOOL clear)
+STATIC bool allocLREAL(lprec *lp, LREAL **ptr, int size, bool clear)
 {
   if(clear == TRUE)
     *ptr = (LREAL *) calloc(size, sizeof(**ptr));
@@ -129,9 +129,9 @@ STATIC MYBOOL allocLREAL(lprec *lp, LREAL **ptr, int size, MYBOOL clear)
     return( TRUE );
 }
 
-STATIC MYBOOL allocFREE(lprec *lp, void **ptr)
+STATIC bool allocFREE(lprec *lp, void **ptr)
 {
-  MYBOOL status = TRUE;
+  bool status = TRUE;
 
   if(*ptr != NULL) {
     free(*ptr);
@@ -150,10 +150,10 @@ STATIC MYBOOL allocFREE(lprec *lp, void **ptr)
 #include "lp_utils.h"
 /* alloc-routines should always be before this line! */
 
-int comp_bits(MYBOOL *bitarray1, MYBOOL *bitarray2, int items)
+int comp_bits(bool *bitarray1, bool *bitarray2, int items)
 {
   int            i, items4, left = 0, right = 0;
-  MYBOOL         comp1;
+  bool         comp1;
   unsigned long comp4;
 
   /* Convert items count to 8-bit representation, if necessary */
@@ -215,7 +215,7 @@ STATIC workarraysrec *mempool_create(lprec *lp)
 STATIC char *mempool_obtainVector(workarraysrec *mempool, int count, int unitsize)
 {
   char   *newmem = NULL;
-  MYBOOL *bnewmem = NULL;
+  bool *bnewmem = NULL;
   int    *inewmem = NULL, size, i, ib, ie, memMargin = 0;
   REAL   *rnewmem = NULL;
 
@@ -248,7 +248,6 @@ STATIC char *mempool_obtainVector(workarraysrec *mempool, int count, int unitsiz
 
   /* Obtain and activate existing, unused vector if we are permitted */
   if(i <= ie) {
-#ifdef Paranoia
     if((mempool->vectorsize[i] > 0) || (abs(mempool->vectorsize[i]) < size)) {
       lprec *lp = mempool->lp;
       lp->report(lp, SEVERE, "mempool_obtainVector: Invalid %s existing vector selected\n",
@@ -257,14 +256,13 @@ STATIC char *mempool_obtainVector(workarraysrec *mempool, int count, int unitsiz
       lp->bb_break = TRUE;
       return( newmem );
     }
-#endif
     newmem = mempool->vectorarray[i];
     mempool->vectorsize[i] *= -1;
   }
 
   /* Otherwise allocate a new vector */
-  else if(unitsize == sizeof(MYBOOL)) {
-    allocMYBOOL(mempool->lp, &bnewmem, count, TRUE);
+  else if(unitsize == sizeof(bool)) {
+    allocbool(mempool->lp, &bnewmem, count, TRUE);
     newmem = (char *) bnewmem;
   }
   else if(unitsize == sizeof(int)) {
@@ -298,7 +296,7 @@ STATIC char *mempool_obtainVector(workarraysrec *mempool, int count, int unitsiz
 
   return( newmem );
 }
-STATIC MYBOOL mempool_releaseVector(workarraysrec *mempool, char *memvector, MYBOOL forcefree)
+STATIC bool mempool_releaseVector(workarraysrec *mempool, char *memvector, bool forcefree)
 {
   int i;
 
@@ -324,7 +322,7 @@ STATIC MYBOOL mempool_releaseVector(workarraysrec *mempool, char *memvector, MYB
 
   return( TRUE );
 }
-STATIC MYBOOL mempool_free(workarraysrec **mempool)
+STATIC bool mempool_free(workarraysrec **mempool)
 {
   int i = (*mempool)->count;
 
@@ -349,12 +347,12 @@ REAL *cloneREAL(lprec *lp, REAL *origlist, int size)
     MEMCOPY(newlist, origlist, size);
   return(newlist);
 }
-MYBOOL *cloneMYBOOL(lprec *lp, MYBOOL *origlist, int size)
+bool *clonebool(lprec *lp, bool *origlist, int size)
 {
-  MYBOOL *newlist;
+  bool *newlist;
 
   size += 1;
-  if(allocMYBOOL(lp, &newlist, size, FALSE))
+  if(allocbool(lp, &newlist, size, FALSE))
     MEMCOPY(newlist, origlist, size);
   return(newlist);
 }
@@ -491,7 +489,7 @@ STATIC REAL roundToPrecision(REAL value, REAL precision)
 /* ---------------------------------------------------------------------------------- */
 /* Searching function specialized for lp_solve                                        */
 /* ---------------------------------------------------------------------------------- */
-STATIC int searchFor(int target, int *attributes, int size, int offset, MYBOOL absolute)
+STATIC int searchFor(int target, int *attributes, int size, int offset, bool absolute)
 {
   int beginPos, endPos;
   int newPos, match;
@@ -554,30 +552,30 @@ STATIC int searchFor(int target, int *attributes, int size, int offset, MYBOOL a
 /* Other supporting math routines                                                     */
 /* ---------------------------------------------------------------------------------- */
 
-STATIC MYBOOL isINT(lprec *lp, REAL value)
+STATIC bool isINT(lprec *lp, REAL value)
 {
 #if 0
-  return( (MYBOOL) (modf(fabs(value)+lp->epsint, &value) < 2*lp->epsint) );
+  return( (bool) modf(fabs(value)+lp->epsint, &value) < 2*lp->epsint) );
 #elif 1
   value = fabs(value)+lp->epsint;
-  return( (MYBOOL) (my_reldiff(value, floor(value)) < 2*lp->epsint) );
+  return( (bool) (my_reldiff(value, floor(value)) < 2*lp->epsint) );
 #elif 0
   REAL hold;
   value = fabs(value);
   hold = pow(10, MIN(-2, log10(value+1)+log10(lp->epsint)));
-  return( (MYBOOL) (modf(value+lp->epsint, &value) < 2*hold) );
+  return( (bool) (modf(value+lp->epsint, &value) < 2*hold) );
 #elif 0
   value -= (REAL)floor(value);
-  return( (MYBOOL) ((value < lp->epsint) || (value > (1 - lp->epsint)) );
+  return( (bool) ((value < lp->epsint) || (value > (1 - lp->epsint)) );
 #else
   value += lp->epsint;
-  return( (MYBOOL) (fabs(value-floor(value)) < 2*lp->epsint) );
+  return( (bool) (fabs(value-floor(value)) < 2*lp->epsint) );
 #endif
 }
 
-STATIC MYBOOL isOrigFixed(lprec *lp, int varno)
+STATIC bool isOrigFixed(lprec *lp, int varno)
 {
-  return( (MYBOOL) (lp->orig_upbo[varno] - lp->orig_lowbo[varno] <= lp->epsmachine) );
+  return( (bool) (lp->orig_upbo[varno] - lp->orig_lowbo[varno] <= lp->epsmachine) );
 }
 
 STATIC void chsign_bounds(REAL *lobound, REAL *upbound)
@@ -600,7 +598,7 @@ STATIC void chsign_bounds(REAL *lobound, REAL *upbound)
 /* ---------------------------------------------------------------------------------- */
 STATIC REAL rand_uniform(lprec *lp, REAL range)
 {
-  static MYBOOL randomized = FALSE; /* static ok here for reentrancy/multithreading */
+  static bool randomized = FALSE; /* static ok here for reentrancy/multithreading */
 
   if(!randomized) {
     randomized = TRUE;
@@ -615,16 +613,16 @@ STATIC REAL rand_uniform(lprec *lp, REAL range)
 /* Define routines for doubly linked lists of integers                                */
 /* ---------------------------------------------------------------------------------- */
 
-STATIC int createLink(int size, LLrec **linkmap, MYBOOL *usedpos)
+STATIC int createLink(int size, LLrec **linkmap, bool *usedpos)
 {
   int i, j;
-  MYBOOL reverse;
+  bool reverse;
 
   *linkmap = (LLrec *) calloc(1, sizeof(**linkmap));
   if(*linkmap == NULL)
     return( -1 );
 
-  reverse = (MYBOOL) (size < 0);
+  reverse = (bool) (size < 0);
   if(reverse)
     size = -size;
   (*linkmap)->map = (int *) calloc(2*(size + 1), sizeof(int));
@@ -654,9 +652,9 @@ STATIC int createLink(int size, LLrec **linkmap, MYBOOL *usedpos)
   return( (*linkmap)->count );
 }
 
-STATIC MYBOOL freeLink(LLrec **linkmap)
+STATIC bool freeLink(LLrec **linkmap)
 {
-  MYBOOL status = TRUE;
+  bool status = TRUE;
 
   if((linkmap == NULL) || (*linkmap == NULL))
     status = FALSE;
@@ -674,7 +672,7 @@ STATIC int sizeLink(LLrec *linkmap)
   return(linkmap->size);
 }
 
-STATIC MYBOOL isActiveLink(LLrec *linkmap, int itemnr)
+STATIC bool isActiveLink(LLrec *linkmap, int itemnr)
 {
   if((linkmap->map[itemnr] != 0) ||
      (linkmap->map[linkmap->size+itemnr] != 0) ||
@@ -704,7 +702,7 @@ STATIC int lastActiveLink(LLrec *linkmap)
   return(linkmap->map[2*linkmap->size+1]);
 }
 
-STATIC MYBOOL appendLink(LLrec *linkmap, int newitem)
+STATIC bool appendLink(LLrec *linkmap, int newitem)
 {
   int k, size;
   size = linkmap->size;
@@ -729,7 +727,7 @@ STATIC MYBOOL appendLink(LLrec *linkmap, int newitem)
   return( TRUE );
 }
 
-STATIC MYBOOL insertLink(LLrec *linkmap, int afteritem, int newitem)
+STATIC bool insertLink(LLrec *linkmap, int afteritem, int newitem)
 {
   int k, size;
 
@@ -759,7 +757,7 @@ STATIC MYBOOL insertLink(LLrec *linkmap, int afteritem, int newitem)
   return( TRUE );
 }
 
-STATIC MYBOOL setLink(LLrec *linkmap, int newitem)
+STATIC bool setLink(LLrec *linkmap, int newitem)
 {
   if(isActiveLink(linkmap, newitem))
     return( FALSE );
@@ -767,7 +765,7 @@ STATIC MYBOOL setLink(LLrec *linkmap, int newitem)
     return( insertLink(linkmap, prevActiveLink(linkmap, newitem), newitem) );
 }
 
-STATIC MYBOOL fillLink(LLrec *linkmap)
+STATIC bool fillLink(LLrec *linkmap)
 {
   int k, size;
   size = linkmap->size;
@@ -894,7 +892,7 @@ STATIC int removeLink(LLrec *linkmap, int itemnr)
   return( nextnr );
 }
 
-STATIC LLrec *cloneLink(LLrec *sourcemap, int newsize, MYBOOL freesource)
+STATIC LLrec *cloneLink(LLrec *sourcemap, int newsize, bool freesource)
 {
   LLrec *testmap = NULL;
 
@@ -932,7 +930,7 @@ STATIC int compareLink(LLrec *linkmap1, LLrec *linkmap2)
   return( test );
 }
 
-STATIC MYBOOL verifyLink(LLrec *linkmap, int itemnr, MYBOOL doappend)
+STATIC bool verifyLink(LLrec *linkmap, int itemnr, bool doappend)
 {
   LLrec *testmap;
 
@@ -948,7 +946,7 @@ STATIC MYBOOL verifyLink(LLrec *linkmap, int itemnr, MYBOOL doappend)
   }
   itemnr = compareLink(linkmap, testmap);
   freeLink(&testmap);
-  return((MYBOOL) (itemnr == 0));
+  return((bool) (itemnr == 0));
 }
 
 /* Packed vector routines */
@@ -957,7 +955,7 @@ STATIC PVrec *createPackedVector(int size, REAL *values, int *workvector)
   int      i, k;
   REGISTER REAL  ref;
   PVrec    *newPV = NULL;
-  MYBOOL   localWV = (MYBOOL) (workvector == NULL);
+  bool   localWV = (bool) (workvector == NULL);
 
   if(localWV)
     workvector = (int *) malloc((size+1)*sizeof(*workvector));
@@ -999,7 +997,7 @@ STATIC PVrec *createPackedVector(int size, REAL *values, int *workvector)
   return( newPV );
 }
 
-STATIC MYBOOL unpackPackedVector(PVrec *PV, REAL **target)
+STATIC bool unpackPackedVector(PVrec *PV, REAL **target)
 {
   int      i, ii, k;
   REGISTER REAL ref;
@@ -1033,7 +1031,7 @@ STATIC REAL getvaluePackedVector(PVrec *PV, int index)
     return( 0 );
 }
 
-STATIC MYBOOL freePackedVector(PVrec **PV)
+STATIC bool freePackedVector(PVrec **PV)
 {
   if((PV == NULL) || (*PV == NULL))
     return( FALSE );
